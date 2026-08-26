@@ -1,0 +1,14 @@
+# Virtual Environments
+.venv/
+
+# Build and PyInstaller Artifacts
+build/
+dist/
+*.spec
+
+# Python Cache and Temp Files
+__pycache__/
+tempCodeRunnerFile.py
+
+# VS Code Settings
+.vscode/
