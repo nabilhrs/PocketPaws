@@ -1,6 +1,17 @@
 import os
+import sys
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide" 
 import pygame
+
+# --- NEW: Helper function to find bundled sounds ---
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+# ---------------------------------------------------
 
 class SoundManager:
     _initialized = False
@@ -12,11 +23,14 @@ class SoundManager:
             cls._initialized = True
 
     @classmethod
-    def play(cls, filename,maxtime=0):
+    def play(cls, filename, maxtime=0):
         if not cls._initialized:
             return
             
-        filepath = os.path.join("assets", "sounds", filename)
+        # --- UPDATED: Wrap the path so PyInstaller can find it ---
+        relative = os.path.join("assets", "sounds", filename)
+        filepath = resource_path(relative)
+        # ---------------------------------------------------------
         
         try:
             if os.path.exists(filepath):
@@ -59,5 +73,5 @@ class SoundManager:
         cls.play("intro.wav")
     
     @classmethod
-    def play_intro(cls):
+    def play_sleep(cls):
         cls.play("sleep.wav")
