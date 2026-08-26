@@ -100,7 +100,7 @@ class InventoryTemplate:
                 try:
                     if os.path.exists(img_path):
                         img = Image.open(img_path).resize((50, 50), Image.Resampling.LANCZOS)
-                        photo = Imageimg)
+                        photo = ImageTk.PhotoImage(img)
                         icon_label.config(image=photo)
                         self.item_images.append(photo)
                     else:
