@@ -11,6 +11,17 @@ living (and getting hungry) even while the game is closed.
 
 **[⬇️ Download the latest PocketPaws.exe](../../releases/latest)** — no Python install needed.
 
+## 🔑 Demo login
+
+Register your own player account from the login screen, or try the admin portal with the
+built-in demo admin:
+
+| Role  | Username | Password   |
+|-------|----------|------------|
+| Admin | `admin`  | `admin123` |
+
+The demo admin exists only in your local save file — nothing is online.
+
 ## ✨ Features
 
 - **Pet care in real time** — Health, Hunger, Happiness and Energy decay over time, including
@@ -60,17 +71,16 @@ pip install -r requirements.txt
 python main.py
 ```
 
-### Creating an admin
+### Admin accounts
 
-There is no built-in admin account. Create one with:
+To give the built-in `admin` account your own password instead of the demo one, set the
+`POCKETPAWS_ADMIN_PASSWORD` environment variable before the first launch. To add more admins:
 
 ```bash
 python make_admin.py
 ```
 
-You'll be prompted for a username and password. Alternatively, set the
-`POCKETPAWS_ADMIN_PASSWORD` environment variable before the first launch and an `admin`
-account will be created with that password.
+You'll be prompted for a username and password.
 
 ## 💾 Save data
 

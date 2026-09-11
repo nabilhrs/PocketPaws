@@ -14,6 +14,7 @@ def get_db_path():
     return os.path.join(app_dir, "pet_simulator.db")
 
 DB_NAME = get_db_path()
+DEMO_ADMIN_PASSWORD = "admin123"  # Documented demo login (see README)
 # ------------------------------------
 
 def get_connection():
@@ -118,16 +119,16 @@ def initialize_database():
         """, default_species)
         print("Default species injected!")
 
-    # No hardcoded admin: one is seeded only when POCKETPAWS_ADMIN_PASSWORD is set.
-    # Otherwise create one with `python make_admin.py`.
-    admin_password = os.environ.get("POCKETPAWS_ADMIN_PASSWORD")
+    # Demo admin so the admin portal can be tried straight away; the credentials
+    # are listed in the README. Set POCKETPAWS_ADMIN_PASSWORD to use your own.
+    admin_password = os.environ.get("POCKETPAWS_ADMIN_PASSWORD", DEMO_ADMIN_PASSWORD)
     cursor.execute("SELECT * FROM users WHERE username = 'admin'")
-    if admin_password and not cursor.fetchone():
+    if not cursor.fetchone():
         cursor.execute("""
             INSERT INTO users (username, password_hash, role, coins)
             VALUES (?, ?, ?, ?)
         """, ("admin", hash_password(admin_password), "admin", 9999))
-        print("Admin account created from POCKETPAWS_ADMIN_PASSWORD.")
+        print("Default admin account created!")
 
     conn.commit()
     conn.close()
