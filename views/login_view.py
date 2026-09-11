@@ -1,22 +1,18 @@
 from tkinter import messagebox
-import hashlib
 from database import get_connection
+from utils.security import hash_password, verify_password, needs_rehash
 from utils.sound_manager import SoundManager
 from templates.login_template import LoginTemplate
 
-class LoginView:    
+class LoginView:
     def __init__(self, root):
         self.root = root
-        
+
         self.template = LoginTemplate(
-            self.root, 
-            login_callback=self.login, 
+            self.root,
+            login_callback=self.login,
             register_callback=self.go_to_register
         )
-
-    def hash_password(self, password):
-        """Simple SHA-256 hashing for the database."""
-        return hashlib.sha256(password.encode()).hexdigest()
 
     def go_to_register(self):
         from views.register_view import RegisterView
@@ -25,22 +21,32 @@ class LoginView:
     def login(self):
         username = self.template.entry_username.get().strip()
         password = self.template.entry_password.get().strip()
-        
+
         if not username or not password:
             messagebox.showerror("Error", "Please fill in all fields.")
             return
 
-        hashed_pw = self.hash_password(password)
         conn = get_connection()
         cursor = conn.cursor()
-        
-        cursor.execute("SELECT * FROM users WHERE username = ? AND password_hash = ?", (username, hashed_pw))
+
+        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
         user = cursor.fetchone()
+
+        if user and not verify_password(password, user['password_hash']):
+            user = None
+
+        # Upgrade accounts saved with the old unsalted hash
+        if user and needs_rehash(user['password_hash']):
+            cursor.execute(
+                "UPDATE users SET password_hash = ? WHERE username = ?",
+                (hash_password(password), username)
+            )
+            conn.commit()
         conn.close()
 
         if user:
             SoundManager.play("intro.wav")
-            
+
             if user['role'] == 'admin':
                 from views.admin_view import AdminView
                 AdminView(self.root, username)

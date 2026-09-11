@@ -1,6 +1,6 @@
 import sqlite3
 import os
-import hashlib
+from utils.security import hash_password
 
 # --- NEW: Safe Directory Handling ---
 def get_db_path():
@@ -118,16 +118,16 @@ def initialize_database():
         """, default_species)
         print("Default species injected!")
 
+    # No hardcoded admin: one is seeded only when POCKETPAWS_ADMIN_PASSWORD is set.
+    # Otherwise create one with `python make_admin.py`.
+    admin_password = os.environ.get("POCKETPAWS_ADMIN_PASSWORD")
     cursor.execute("SELECT * FROM users WHERE username = 'admin'")
-    if not cursor.fetchone():
-        default_password = "admin123"
-        hashed_pw = hashlib.sha256(default_password.encode()).hexdigest()
-        
+    if admin_password and not cursor.fetchone():
         cursor.execute("""
-            INSERT INTO users (username, password_hash, role, coins) 
+            INSERT INTO users (username, password_hash, role, coins)
             VALUES (?, ?, ?, ?)
-        """, ("admin", hashed_pw, "admin", 9999))
-        print("Default admin account created!")
+        """, ("admin", hash_password(admin_password), "admin", 9999))
+        print("Admin account created from POCKETPAWS_ADMIN_PASSWORD.")
 
     conn.commit()
     conn.close()
